@@ -1,0 +1,74 @@
+<?php
+
+function stats_init() {
+  drupal_add_library('system', 'ui.datepicker');
+  drupal_add_js("(function ($) { $('.datepicker').datepicker(); })(jQuery);", array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+}
+
+function stats_menu() {
+  $items['stats/nodes'] = array(
+    'title' => 'total number of nodes per content type',
+    'description' => 'total number of nodes per content type',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('stats_page_form'),
+  );
+  return $items;
+}
+
+
+function stats_page_form() {
+
+  $form['display'] = array(
+    '#type' => 'markup',
+    '#prefix' => '<div id="display">',
+    '#suffix' => '</div>',
+  );
+
+  $form['start_date'] = array(
+    '#type' => 'textfield',
+    '#attributes' => array('class' => array('datepicker')),
+  );
+
+  $form['end_date'] = array(
+    '#type' => 'textfield',
+    '#attributes' => array('class' => array('datepicker')),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'submit',
+    '#ajax' => array(
+      'callback' => 'stats_page_form_submit',
+      'wrapper' => 'display',
+      'method' => 'replace',
+      'effect' => 'fade',
+    ),
+  );
+
+  return $form;
+}
+
+function stats_page_form_submit($form, &$form_state) {
+
+  $query = db_select('node', 'n');
+  $query->fields('n', array('type'));
+  $query->condition('n.status', 1);
+  $query->condition('n.created', array(1301415450, 1304958532), 'BETWEEN');
+  $query->groupBy('n.type');
+  $query->addExpression('COUNT(*)', 'counter');
+  $rows = $query->execute()->fetchAll();
+  $header = array('type', 'total');
+  foreach ($rows as $row) {
+    $data[] = array($row->type, $row->counter);
+  }
+
+  if (!empty($data)) {
+    return theme('table', array('header' => $header, 'rows' => $data));
+  }
+  else {
+    return array();
+  }
+
+}

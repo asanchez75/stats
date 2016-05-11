@@ -1,5 +1,16 @@
 <?php
 
+
+function stats_custom_theme() {
+  global $conf;
+  $args = arg();
+
+  // Set the admin theme when viewing a diff comparison with the diff module.
+  if (isset($args[0]) && $args[0] == "stats") {
+    return array($conf['admin_theme']);
+  }
+}
+
 function stats_init() {
   drupal_add_library('system', 'ui.datepicker');
   drupal_add_js("(function ($) { $('.datepicker').datepicker(); })(jQuery);", array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
@@ -52,10 +63,14 @@ function stats_page_form() {
 
 function stats_page_form_submit($form, &$form_state) {
 
+
+  $start_date = strtotime($form_state['values']['start_date']);
+  $end_date = strtotime($form_state['values']['end_date']);
+
   $query = db_select('node', 'n');
   $query->fields('n', array('type'));
   $query->condition('n.status', 1);
-  $query->condition('n.created', array(1301415450, 1304958532), 'BETWEEN');
+  $query->condition('n.created', array($start_date, $end_date), 'BETWEEN');
   $query->groupBy('n.type');
   $query->addExpression('COUNT(*)', 'counter');
   $rows = $query->execute()->fetchAll();

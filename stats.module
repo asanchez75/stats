@@ -1,6 +1,10 @@
 <?php
 
-
+/**
+ * @asanchez75
+ * [stats_custom_theme description]
+ * @return [type] [description]
+ */
 function stats_custom_theme() {
   global $conf;
   $args = arg();
@@ -11,11 +15,19 @@ function stats_custom_theme() {
   }
 }
 
+/**
+ * [stats_init description]
+ * @return [type] [description]
+ */
 function stats_init() {
   drupal_add_library('system', 'ui.datepicker');
   drupal_add_js("(function ($) { $('.datepicker').datepicker(); })(jQuery);", array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
 }
 
+/**
+ * [stats_menu description]
+ * @return [type] [description]
+ */
 function stats_menu() {
   $items['stats/nodes'] = array(
     'title' => 'total number of nodes per content type',
@@ -28,7 +40,10 @@ function stats_menu() {
   return $items;
 }
 
-
+/**
+ * [stats_page_form description]
+ * @return [type] [description]
+ */
 function stats_page_form() {
 
   $form['display'] = array(
@@ -61,6 +76,12 @@ function stats_page_form() {
   return $form;
 }
 
+/**
+ * [stats_page_form_submit description]
+ * @param  [type] $form        [description]
+ * @param  [type] &$form_state [description]
+ * @return [type]              [description]
+ */
 function stats_page_form_submit($form, &$form_state) {
 
   $form_state['rebuild'] = true;
